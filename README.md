@@ -52,4 +52,13 @@ https://www.ebay.com/itm/312621586322?hash=item48c9b2d792:g:BtUAAOSwYMlc4sAF
 ## Dependency Libraries
 ArduinoJson - https://github.com/bblanchon/ArduinoJson
 
+## Limitations
+Tested an account with the following parameters
+- following 540
+- assets (Hodle) 13
+No low memory issues.
+
+But if the number of following is huge (more than 600) and number of assets are huge number(greater than 50) 
+account balance or all the assets hodle balance will not be shown due to memeory limitation.
+
 

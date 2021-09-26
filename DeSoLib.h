@@ -29,6 +29,8 @@ class DeSoLib{
         double CoinsInCirculationNanos;
         double CoinPriceBitCloutNanos;
         double BalanceNanos;
+        double TotalHODLBalanceClout;
+        int TotalHodleNum;
     };
 
     char buff_small_1[200];
@@ -45,14 +47,14 @@ class DeSoLib{
     char* getSelectedNodeUrl();
     bool getSelectedNodeStatus();
     char* getRequest(const char* apiPath);
-    char * postRequest(const char* apiPath,const char *data);
+    const char * postRequest(const char* apiPath,const char *data);
     char* getNodeHealthCheck();
     void updateNodeHealthCheck();
     char* getExchangeRates();
     void updateExchangeRates();
-    char * getSingleProfile(const char *messagePayload);
+    const char * getSingleProfile(const char *messagePayload);
     void updateSingleProfile(const char *username,const char *PublicKeyBase58Check,Profile *prof);
-    char * getUsersStateless(const char *messagePayload);
+    const char * getUsersStateless(const char *messagePayload);
     void updateUsersStateless(const char *PublicKeysBase58Check,bool skipHodlings,Profile *prof);
     ~DeSoLib();
 

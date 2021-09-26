@@ -54,8 +54,9 @@ char* DeSoLib::getRequest(const char* apiPath){
     https.end();
     return buff_large;
 }
-char * DeSoLib::postRequest(const char* apiPath,const char* data){
+const char * DeSoLib::postRequest(const char* apiPath,const char* data){
     HTTPClient https;
+    const char *buff_ptr;
     memset(buff_large,0,sizeof(buff_large));
     espClientSecure.setCACert(nodePaths[selectedNodeIndex].caRootCert);
     snprintf(buff_small_1, sizeof(buff_small_1), "%s%s", nodePaths[selectedNodeIndex].url, apiPath);
@@ -70,12 +71,14 @@ char * DeSoLib::postRequest(const char* apiPath,const char* data){
         {
             if (httpCode == HTTP_CODE_OK)
             {
-                strncpy(buff_large, https.getString().c_str(), sizeof(buff_large));
+                buff_ptr = https.getString().c_str();
+                //strncpy(buff_large, https.getString().c_str(), sizeof(buff_large));
             }
         }
     }
     https.end();
-    return buff_large;
+    //return buff_large;
+    return buff_ptr;
 }
 
 char * DeSoLib::getNodeHealthCheck()
@@ -106,14 +109,14 @@ void DeSoLib::updateExchangeRates(){
 
     }
 }
-char * DeSoLib::getSingleProfile(const char *messagePayload){
+const char * DeSoLib::getSingleProfile(const char *messagePayload){
     return postRequest(RoutePathGetSingleProfile,messagePayload);
 
 }
 
 void DeSoLib::updateSingleProfile(const char *username,const char *PublicKeyBase58Check,Profile *prof){
     static char postData[100];
-    DynamicJsonDocument doc(1024);
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap()/2-5000);
     if(strlen(username)>0){
         doc["Username"]=username;
     }
@@ -122,9 +125,8 @@ void DeSoLib::updateSingleProfile(const char *username,const char *PublicKeyBase
     }
         
     serializeJson(doc, postData);
-
-    const char *payload = getSingleProfile(postData);
     doc.clear();
+    const char *payload = getSingleProfile(postData);
 
     DeserializationError error = deserializeJson(doc, payload);
     if (!error)
@@ -139,24 +141,46 @@ void DeSoLib::updateSingleProfile(const char *username,const char *PublicKeyBase
     }
 }
 
-char * DeSoLib::getUsersStateless(const char *messagePayload){
+const char * DeSoLib::getUsersStateless(const char *messagePayload){
     return postRequest(RoutePathGetUsersStateless,messagePayload);
 }
 
 void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check,bool skipHodlings,Profile *prof){
     static char messagePayload[200];
-    DynamicJsonDocument doc(200);
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap()/2 - 5000);
     doc["PublicKeysBase58Check"][0]=PublicKeysBase58Check;
     doc["skipHodlings"]=skipHodlings;
-   
     serializeJson(doc, messagePayload);
-    const char *payload = getUsersStateless(messagePayload);
+    doc.clear();
+    const char *payload = getUsersStateless(messagePayload);   
     StaticJsonDocument<200> filter;
     filter["UserList"][0]["BalanceNanos"] = true;
+    filter["UserList"][0]["UsersYouHODL"] = true;
 
     // Deserialize the document
-    deserializeJson(doc, payload, DeserializationOption::Filter(filter));
+    DeserializationError error=deserializeJson(doc, payload, DeserializationOption::Filter(filter));
     prof->BalanceNanos = doc["UserList"][0]["BalanceNanos"];
+    double HODLBalance=0;
+    double perUserHODLBalanceNanos=0;
+    double perUserHODLValue=0;
+    int TotalHodleNum=0;
+    JsonArray arr = doc["UserList"][0]["UsersYouHODL"].as<JsonArray>();
+    for (JsonVariant value : arr) {
+        perUserHODLBalanceNanos=value["BalanceNanos"].as<double>();
+        perUserHODLValue=value["ProfileEntryResponse"]["CoinPriceBitCloutNanos"].as<double>();
+        HODLBalance += ((perUserHODLBalanceNanos/1000000000.0) * perUserHODLValue)/1000000000.0;
+        TotalHodleNum++;
+    }
+    //Serial.println(HODLBalance);
+    //Serial.println(ESP.getMaxAllocHeap());
+    prof->TotalHODLBalanceClout=HODLBalance;
+    prof->TotalHodleNum = TotalHodleNum;
+    if (!error)
+    {
+        
+    }else{
+        debug_print("\nJson Error,incomplete due to low memory\n");
+    }
     // Print the result
     //serializeJsonPretty(doc, Serial);
 }

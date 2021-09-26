@@ -71,6 +71,11 @@ void loop()
     Serial.print("Wallet Balance:");
     double balanceCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.BalanceNanos / 1000000000.0);
     Serial.println(balanceCents / 100.0);
+    Serial.print("Total HODLE assets : ");
+    Serial.println(profile1.TotalHodleNum);
+    Serial.print("Total HODLE Asset Balance: $");
+    double assetsValue=(profile1.TotalHODLBalanceClout*deso.USDCentsPerBitCloutExchangeRate)/100.0;
+    Serial.println(assetsValue);
     Serial.println("======================");
   }
   delay(10000UL);
