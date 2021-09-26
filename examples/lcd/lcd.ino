@@ -3,7 +3,6 @@
 #include <WiFi.h>
 #include "cert.h"
 #include <Wire.h> 
-//LCD library used in this [https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library]
 #include <LiquidCrystal_I2C.h>
 
 // Set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -20,7 +19,10 @@ void setup()
   // put your setup code here, to run once:
   lcd.begin();
   lcd.backlight();
-  lcd.print("Hello, DeSo !");
+  lcd.clear();
+  lcd.print("DeSo Dashbaord");
+  lcd.setCursor(0,1);
+  lcd.print("(Bitclout)");
   Serial.begin(9600);
   Serial.setDebugOutput(true);
   WiFi.enableSTA(true);
@@ -36,6 +38,7 @@ void setup()
   deso.addNodePath("https://nachoaverage.com", nachoaverage_caRootCert);
   deso.addNodePath("https://members.giftclout.com",giftclout_caRootCert);
   deso.selectDefaultNode(0);
+  lcd.clear();
 }
 
 void loop()
@@ -63,10 +66,10 @@ void loop()
     double temp = deso.USDCentsPerBitCloutExchangeRate / 100.0;
     Serial.println(temp);
     lcd.setCursor(0,0);
-    lcd.print("                ");
+    lcd.print("        ");
     lcd.setCursor(0,0);
-    lcd.print("DeSo: $");
-    lcd.print(temp);
+    lcd.print("D:$");
+    lcd.print(temp,0);
     //Serial.println("BTC (USD):");
     //Serial.println(deso.USDCentsPerBitcoinExchangeRate/100.0);
     Serial.println("=======Profile========");
@@ -99,6 +102,17 @@ void loop()
     
     lcd.print(temp,1);
     Serial.println(balanceCents / 100.0);
+    Serial.print("Total HODLE assets : ");
+    Serial.println(profile1.TotalHodleNum);
+    Serial.print("Total HODLE Asset Balance: $");
+    double assetsValue=(profile1.TotalHODLBalanceClout*deso.USDCentsPerBitCloutExchangeRate)/100.0;
+    Serial.println(assetsValue);
+    lcd.setCursor(8,0);
+    lcd.print("        ");
+    lcd.setCursor(8,0);
+    temp = assetsValue; 
+    lcd.print("H:$");
+    lcd.print(temp,1);
     Serial.println("======================");
   }
   delay(10000UL);
