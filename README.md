@@ -14,32 +14,38 @@ This arduino library is for the DeSo (Decentralized Social) Network Blockchain.
 ```
 DeSo Node: https://bitclout.com
 Node Status: Synced OK
-DeSo Coin Value: $130.34
+DeSo Coin Value: $121.90
 =======Profile========
 Username: ropolexi
 PublicKey: BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8
-Creator Coin Price: $5.20
-Wallet Balance:0.30
+Creator Coin Price: $31.68
+Wallet Balance: $1.02
+Total HODLE assets : 4
+Total HODLE Asset Balance: $35.40
 ======================
 
 DeSo Node: https://nachoaverage.com
 Node Status: Synced OK
-DeSo Coin Value: $130.34
+DeSo Coin Value: $121.90
 =======Profile========
 Username: ropolexi
 PublicKey: BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8
-Creator Coin Price: $5.20
-Wallet Balance:0.30
+Creator Coin Price: $31.68
+Wallet Balance: $1.02
+Total HODLE assets : 4
+Total HODLE Asset Balance: $35.40
 ======================
 
 DeSo Node: https://members.giftclout.com
 Node Status: Synced OK
-DeSo Coin Value: $130.34
+DeSo Coin Value: $121.90
 =======Profile========
 Username: ropolexi
 PublicKey: BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8
-Creator Coin Price: $5.20
-Wallet Balance:0.30
+Creator Coin Price: $31.68
+Wallet Balance: $1.02
+Total HODLE assets : 4
+Total HODLE Asset Balance: $35.40
 ======================
 ```
 ## Device Supported
