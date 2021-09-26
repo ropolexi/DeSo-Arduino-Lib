@@ -8,6 +8,7 @@ This arduino library is for the DeSo (Decentralized Social) Network Blockchain.
 - DeSo Coin Value
 - Creator Coin Price using username or PublicKey
 - Wallet Balance
+- All HODLE Asset balance
 
 
 ## Serial Output Results
