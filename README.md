@@ -4,6 +4,7 @@
 This arduino library is for the DeSo (Decentralized Social) Network Blockchain.
 
 ## Features
+- Multiple DeSo Nodes supported for decentralization 
 - DeSo Coin Value
 - Creator Coin Price using username or PublicKey
 - Wallet Balance
