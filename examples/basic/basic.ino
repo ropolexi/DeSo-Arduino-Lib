@@ -57,8 +57,8 @@ void loop()
     Serial.println("=======Profile========");
     DeSoLib::Profile profile1;
     delay(1000);
-    //deso.updateSingleProfile("ropolexi", "" ,&profile1);//search by username or public key
-    deso.updateSingleProfile("", "BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8", &profile1);
+    deso.updateSingleProfile("ropolexi", "" ,&profile1);//search by username or public key
+    //deso.updateSingleProfile("", "BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8", &profile1);
 
     Serial.print("Username: ");
     Serial.println(profile1.Username);
@@ -67,6 +67,10 @@ void loop()
     Serial.print("Creator Coin Price: $");
     double coinPriceUSDCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.CoinPriceBitCloutNanos / 1000000000.0);
     Serial.println(coinPriceUSDCents / 100.0);
+    deso.updateUsersStateless("BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8", true, &profile1);
+    Serial.print("Wallet Balance:");
+    double balanceCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.BalanceNanos / 1000000000.0);
+    Serial.println(balanceCents / 100.0);
     Serial.println("======================");
   }
   delay(10000UL);
