@@ -16,6 +16,7 @@ class DeSoLib{
     const char *RoutePathHealthCheck = "/api/v0/health-check";
     const char *ExchangeRateRoute = "/api/v0/get-exchange-rate";
     const char *RoutePathGetSingleProfile = "/api/v0/get-single-profile";
+    const char *RoutePathGetUsersStateless = "/api/v0/get-users-stateless";
     struct Node{
         char url[50];
         bool status=false;
@@ -27,6 +28,7 @@ class DeSoLib{
         char Username[20];
         double CoinsInCirculationNanos;
         double CoinPriceBitCloutNanos;
+        double BalanceNanos;
     };
 
     char buff_small_1[200];
@@ -49,8 +51,9 @@ class DeSoLib{
     char* getExchangeRates();
     void updateExchangeRates();
     char * getSingleProfile(const char *messagePayload);
-    void updateSingleProfile(const char *username,const char *PublicKeyBase58CheckProfile,Profile *prof);
-
+    void updateSingleProfile(const char *username,const char *PublicKeyBase58Check,Profile *prof);
+    char * getUsersStateless(const char *messagePayload);
+    void updateUsersStateless(const char *PublicKeysBase58Check,bool skipHodlings,Profile *prof);
     ~DeSoLib();
 
     private:

@@ -138,6 +138,28 @@ void DeSoLib::updateSingleProfile(const char *username,const char *PublicKeyBase
         debug_print("Json Error");
     }
 }
+
+char * DeSoLib::getUsersStateless(const char *messagePayload){
+    return postRequest(RoutePathGetUsersStateless,messagePayload);
+}
+
+void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check,bool skipHodlings,Profile *prof){
+    static char messagePayload[200];
+    DynamicJsonDocument doc(200);
+    doc["PublicKeysBase58Check"][0]=PublicKeysBase58Check;
+    doc["skipHodlings"]=skipHodlings;
+   
+    serializeJson(doc, messagePayload);
+    const char *payload = getUsersStateless(messagePayload);
+    StaticJsonDocument<200> filter;
+    filter["UserList"][0]["BalanceNanos"] = true;
+
+    // Deserialize the document
+    deserializeJson(doc, payload, DeserializationOption::Filter(filter));
+    prof->BalanceNanos = doc["UserList"][0]["BalanceNanos"];
+    // Print the result
+    //serializeJsonPretty(doc, Serial);
+}
 DeSoLib::~DeSoLib()
 {
 }
