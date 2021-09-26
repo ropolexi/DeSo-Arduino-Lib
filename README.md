@@ -63,9 +63,10 @@ ArduinoJson - https://github.com/bblanchon/ArduinoJson
 Tested an account with the following parameters
 - following 540
 - assets (Hodle) 13
+
 No low memory issues.
 
 But if the number of following is huge (more than 600) and number of assets are huge number(greater than 50) 
-account balance or all the assets hodle balance will not be shown due to memeory limitation.
+account balance or all the assets hodle balance will not be shown due to memory limitation.
 
 
