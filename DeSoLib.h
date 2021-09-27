@@ -17,6 +17,7 @@ class DeSoLib{
     const char *ExchangeRateRoute = "/api/v0/get-exchange-rate";
     const char *RoutePathGetSingleProfile = "/api/v0/get-single-profile";
     const char *RoutePathGetUsersStateless = "/api/v0/get-users-stateless";
+    const char *RoutePathGetHodlersForPublicKey = "/api/v0/get-hodlers-for-public-key";
     struct Node{
         char url[50];
         bool status=false;
@@ -31,6 +32,8 @@ class DeSoLib{
         double BalanceNanos;
         double TotalHODLBalanceClout;
         int TotalHodleNum;
+        char TopHodlersUserNames[10][20];
+
     };
 
     char buff_small_1[200];
@@ -56,6 +59,9 @@ class DeSoLib{
     void updateSingleProfile(const char *username,const char *PublicKeyBase58Check,Profile *prof);
     const char * getUsersStateless(const char *messagePayload);
     void updateUsersStateless(const char *PublicKeysBase58Check,bool skipHodlings,Profile *prof);
+    const char *getHodlersForPublicKey(const char *messagePayload);
+    void updateHodlersForPublicKey(const char *username,const char *PublicKeyBase58Check,int NumToFetch,Profile *prof);
+    void clearTopHodlersUserNames(Profile *prof);
     ~DeSoLib();
 
     private:

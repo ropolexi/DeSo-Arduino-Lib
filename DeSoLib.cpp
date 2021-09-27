@@ -3,7 +3,7 @@
 #include <HTTPClient.h>
 #include "ArduinoJson.h"
 
-#define DEBUG_LOG true
+#define DEBUG_LOG false
 
 DeSoLib::DeSoLib()
 {
@@ -147,7 +147,7 @@ const char * DeSoLib::getUsersStateless(const char *messagePayload){
 
 void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check,bool skipHodlings,Profile *prof){
     static char messagePayload[200];
-    DynamicJsonDocument doc(ESP.getMaxAllocHeap()/2 - 5000);
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap() - 5000);
     doc["PublicKeysBase58Check"][0]=PublicKeysBase58Check;
     doc["skipHodlings"]=skipHodlings;
     serializeJson(doc, messagePayload);
@@ -155,7 +155,10 @@ void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check,bool skipHo
     const char *payload = getUsersStateless(messagePayload);   
     StaticJsonDocument<200> filter;
     filter["UserList"][0]["BalanceNanos"] = true;
-    filter["UserList"][0]["UsersYouHODL"] = true;
+    if(skipHodlings==false){
+        filter["UserList"][0]["UsersYouHODL"] = true;
+    }
+    
 
     // Deserialize the document
     DeserializationError error=deserializeJson(doc, payload, DeserializationOption::Filter(filter));
@@ -164,17 +167,19 @@ void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check,bool skipHo
     double perUserHODLBalanceNanos=0;
     double perUserHODLValue=0;
     int TotalHodleNum=0;
-    JsonArray arr = doc["UserList"][0]["UsersYouHODL"].as<JsonArray>();
-    for (JsonVariant value : arr) {
-        perUserHODLBalanceNanos=value["BalanceNanos"].as<double>();
-        perUserHODLValue=value["ProfileEntryResponse"]["CoinPriceBitCloutNanos"].as<double>();
-        HODLBalance += ((perUserHODLBalanceNanos/1000000000.0) * perUserHODLValue)/1000000000.0;
-        TotalHodleNum++;
+    if(skipHodlings==false){
+        JsonArray arr = doc["UserList"][0]["UsersYouHODL"].as<JsonArray>();
+        for (JsonVariant value : arr) {
+            perUserHODLBalanceNanos=value["BalanceNanos"].as<double>();
+            perUserHODLValue=value["ProfileEntryResponse"]["CoinPriceBitCloutNanos"].as<double>();
+            HODLBalance += ((perUserHODLBalanceNanos/1000000000.0) * perUserHODLValue)/1000000000.0;
+            TotalHodleNum++;
+        }
+        //Serial.println(HODLBalance);
+        //Serial.println(ESP.getMaxAllocHeap());
+        prof->TotalHODLBalanceClout=HODLBalance;
+        prof->TotalHodleNum = TotalHodleNum;
     }
-    //Serial.println(HODLBalance);
-    //Serial.println(ESP.getMaxAllocHeap());
-    prof->TotalHODLBalanceClout=HODLBalance;
-    prof->TotalHodleNum = TotalHodleNum;
     if (!error)
     {
         
@@ -184,6 +189,57 @@ void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check,bool skipHo
     // Print the result
     //serializeJsonPretty(doc, Serial);
 }
+
+const char * DeSoLib::getHodlersForPublicKey(const char *messagePayload){
+    return postRequest(RoutePathGetHodlersForPublicKey,messagePayload);
+}
+void DeSoLib::updateHodlersForPublicKey(const char *username,const char *PublicKeyBase58Check,int NumToFetch,Profile *prof){
+    static char postData[100];
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap()/2-5000);
+    if(strlen(username)>0){
+        doc["Username"]=username;
+        strncpy(prof->Username,username,sizeof(prof->Username));
+    }
+    if(strlen(PublicKeyBase58Check)>0){
+        doc["PublicKeyBase58Check"]=PublicKeyBase58Check;
+    }
+    if(NumToFetch>sizeof(prof->TopHodlersUserNames[0])){
+        NumToFetch=sizeof(prof->TopHodlersUserNames[0]);
+    }
+    doc["NumToFetch"]=NumToFetch+1;
+        
+    serializeJson(doc, postData);
+    doc.clear();
+    const char *payload = getHodlersForPublicKey(postData);
+    //StaticJsonDocument<200> filter;
+    //filter["Hodlers"][0]["BalanceNanos"] = true;
+    //filter["UserList"][0]["UsersYouHODL"] = true;
+
+    // Deserialize the document
+    DeserializationError error=deserializeJson(doc, payload);//, DeserializationOption::Filter(filter));
+ 
+    if (!error)
+    {
+        JsonArray arr = doc["Hodlers"].as<JsonArray>();
+        int count=0;
+        for (JsonVariant value : arr) {
+            if(strcmp(value["ProfileEntryResponse"]["Username"],prof->Username)!=0){
+                strncpy(prof->TopHodlersUserNames[count],value["ProfileEntryResponse"]["Username"],sizeof(prof->TopHodlersUserNames[count]));
+                count++;
+            }
+        }
+
+    }else{
+        debug_print("Json Error");
+    }
+}
+
+void DeSoLib::clearTopHodlersUserNames(Profile *prof){
+    for(int i=0;i<sizeof(prof->TopHodlersUserNames[0]);i++){
+        strcpy(prof->TopHodlersUserNames[i],"");
+    }
+}
+
 DeSoLib::~DeSoLib()
 {
 }
