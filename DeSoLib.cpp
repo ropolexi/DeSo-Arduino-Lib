@@ -79,10 +79,11 @@ const char *DeSoLib::postRequest(const char *apiPath, const char *data)
 
                 //if (https.getSize() < 80000)
                 //{
-                    buff_ptr = https.getString().c_str();
-                    if (strcmp(buff_ptr, "") == 0){
-                        buff_ptr = buff_null;
-                    }
+                buff_ptr = https.getString().c_str();
+                if (strcmp(buff_ptr, "") == 0)
+                {
+                    buff_ptr = buff_null;
+                }
                 //}
             }
             else
@@ -161,17 +162,30 @@ void DeSoLib::updateSingleProfile(const char *username, const char *PublicKeyBas
     if (doc.isNull())
     {
         serializeJsonPretty(doc, Serial);
+        strncpy(prof->Username, username, sizeof(prof->Username));
+        strcpy(prof->PublicKeyBase58Check, "NULL");
     }
     if (!error)
     {
-        strncpy(prof->Username, doc["Profile"]["Username"], sizeof(prof->Username));
-        prof->CoinPriceBitCloutNanos = doc["Profile"]["CoinPriceBitCloutNanos"];
-        prof->CoinsInCirculationNanos = doc["Profile"]["CoinEntry"]["CoinsInCirculationNanos"];
-        strcpy(prof->PublicKeyBase58Check, doc["Profile"]["PublicKeyBase58Check"]);
+        strlcpy(buff_small_2, doc["Profile"]["Username"] | "0", sizeof(buff_small_2));
+        if (strcmp(buff_small_2, "0") != 0)
+        {
+            strncpy(prof->Username, doc["Profile"]["Username"], sizeof(prof->Username));
+            prof->CoinPriceBitCloutNanos = doc["Profile"]["CoinPriceBitCloutNanos"];
+            prof->CoinsInCirculationNanos = doc["Profile"]["CoinEntry"]["CoinsInCirculationNanos"];
+            strcpy(prof->PublicKeyBase58Check, doc["Profile"]["PublicKeyBase58Check"]);
+        }
+        else
+        {
+            strncpy(prof->Username, username, sizeof(prof->Username));
+            strcpy(prof->PublicKeyBase58Check, "NULL");
+        }
     }
     else
     {
         debug_print("Json Error");
+        strncpy(prof->Username, username, sizeof(prof->Username));
+        strcpy(prof->PublicKeyBase58Check, "NULL");
     }
 }
 
@@ -193,10 +207,11 @@ void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check, bool skipH
     DynamicJsonDocument filter(400);
     filter["UserList"][0]["BalanceNanos"] = true;
     if (skipHodlings == false)
-    {   
-        for(int i=0;i<5;i++){
+    {
+        for (int i = 0; i < 5; i++)
+        {
             filter["UserList"][0]["UsersYouHODL"][i]["BalanceNanos"] = true;
-            filter["UserList"][0]["UsersYouHODL"][i]["ProfileEntryResponse"]["CoinPriceBitCloutNanos"]=true;
+            filter["UserList"][0]["UsersYouHODL"][i]["ProfileEntryResponse"]["CoinPriceBitCloutNanos"] = true;
         }
     }
 
