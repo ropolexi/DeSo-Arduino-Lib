@@ -9,6 +9,7 @@ This arduino library is for the DeSo (Decentralized Social) Network Blockchain.
 - Creator Coin Price using username or PublicKey
 - Wallet Balance
 - All HODLE Asset balance
+- Top 10 Hodlers
 
 
 ## Serial Output Results
@@ -61,10 +62,10 @@ ArduinoJson - https://github.com/bblanchon/ArduinoJson
 
 ## Limitations
 Tested an account with the following parameters
-- following 540
+- following 500
 - assets (Hodle) 13
 
-No low memory issues.
+No low memory issues. 
 
 But if the number of following is huge (more than 600) and number of assets are huge number(greater than 50) 
 account balance or all the assets hodle balance will not be shown due to memory limitation.
