@@ -204,7 +204,7 @@ void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check, bool skipH
     doc.clear();
     const char *payload = getUsersStateless(messagePayload);
     //StaticJsonDocument<200> filter;
-    DynamicJsonDocument filter(400);
+    DynamicJsonDocument filter(1000);
     filter["UserList"][0]["BalanceNanos"] = true;
     if (skipHodlings == false)
     {
