@@ -342,6 +342,7 @@ void DeSoLib::updateHodlersForPublicKey(const char *username, const char *Public
     {
         debug_print("Json Error");
     }
+
 }
 
 void DeSoLib::clearTopHodlersUserNames(Profile *prof)
@@ -349,6 +350,38 @@ void DeSoLib::clearTopHodlersUserNames(Profile *prof)
     for (int i = 0; i < sizeof(prof->TopHodlersUserNames[0]); i++)
     {
         strcpy(prof->TopHodlersUserNames[i], "");
+    }
+}
+const char *DeSoLib::getPostsForPublicKey(const char *messagePayload){
+    return postRequest(RoutePathGetPostsForPublicKey, messagePayload);
+}
+
+void DeSoLib::updateLastPostForPublicKey(const char *PublicKeysBase58Check,Profile *prof){
+    static char postData[100];
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap() - 5000);
+    doc["PublicKeyBase58Check"]=PublicKeysBase58Check;
+    doc["NumToFetch"]=1;
+    serializeJson(doc, postData);
+    doc.clear();
+    const char *payload = getPostsForPublicKey(postData);
+    DynamicJsonDocument filter(200);
+    filter["Posts"][0]["LikeCount"] = true;
+    filter["Posts"][0]["DiamondCount"] = true;
+
+    // Deserialize the document
+    DeserializationError error = deserializeJson(doc, payload,DeserializationOption::Filter(filter));
+    if (doc.isNull())
+    {
+        serializeJsonPretty(doc, Serial);
+    }
+    if (!error)
+    {
+        prof->lastPostLikes=doc["Posts"][0]["LikeCount"] ;
+        prof->lastPostDiamonds=doc["Posts"][0]["DiamondCount"] ;
+    }
+    else
+    {
+        debug_print("Json Error");
     }
 }
 

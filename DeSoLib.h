@@ -18,6 +18,8 @@ class DeSoLib{
     const char *RoutePathGetSingleProfile = "/api/v0/get-single-profile";
     const char *RoutePathGetUsersStateless = "/api/v0/get-users-stateless";
     const char *RoutePathGetHodlersForPublicKey = "/api/v0/get-hodlers-for-public-key";
+    const char *RoutePathGetPostsForPublicKey = "/api/v0/get-posts-for-public-key";
+
     struct Node{
         char url[50];
         bool status=false;
@@ -33,6 +35,8 @@ class DeSoLib{
         double TotalHODLBalanceClout;
         int TotalHodleNum;
         char TopHodlersUserNames[10][20];
+        int lastPostLikes;
+        int lastPostDiamonds;
 
     };
 
@@ -62,6 +66,8 @@ class DeSoLib{
     const char *getHodlersForPublicKey(const char *messagePayload);
     void updateHodlersForPublicKey(const char *username,const char *PublicKeyBase58Check,int NumToFetch,Profile *prof);
     void clearTopHodlersUserNames(Profile *prof);
+    const char *getPostsForPublicKey(const char *messagePayload);
+    void updateLastPostForPublicKey(const char *PublicKeysBase58Check,Profile *prof);
     ~DeSoLib();
 
     private:
