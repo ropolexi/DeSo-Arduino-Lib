@@ -49,11 +49,11 @@ class DeSoLib{
     void selectDefaultNode(int index);
     char* getSelectedNodeUrl();
     bool getSelectedNodeStatus();
-    char* getRequest(const char* apiPath);
+    const char* getRequest(const char* apiPath);
     const char * postRequest(const char* apiPath,const char *data);
-    char* getNodeHealthCheck();
+    const char* getNodeHealthCheck();
     void updateNodeHealthCheck();
-    char* getExchangeRates();
+    const char* getExchangeRates();
     void updateExchangeRates();
     const char * getSingleProfile(const char *messagePayload);
     void updateSingleProfile(const char *username,const char *PublicKeyBase58Check,Profile *prof);

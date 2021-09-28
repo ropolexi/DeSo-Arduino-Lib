@@ -33,16 +33,26 @@ bool DeSoLib::getSelectedNodeStatus()
     return nodePaths[selectedNodeIndex].status;
 }
 
-char *DeSoLib::getRequest(const char *apiPath)
+const char *DeSoLib::getRequest(const char *apiPath)
 {
     HTTPClient https;
-    char url_str[100];
+    //char url_str[100];
+    const char *buff_ptr;
     memset(buff_large, 0, sizeof(buff_large));
-    espClientSecure.setCACert(nodePaths[selectedNodeIndex].caRootCert);
+    if (strcmp(nodePaths[selectedNodeIndex].caRootCert, ""))
+    {
+        espClientSecure.setCACert(nodePaths[selectedNodeIndex].caRootCert);
+    }
+    else
+    {
+        espClientSecure.setInsecure();
+    }
+    https.addHeader("User-Agent", "Mozilla/5.0");
     https.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    snprintf(url_str, sizeof(url_str), "%s%s", nodePaths[selectedNodeIndex].url, apiPath);
+    //snprintf(url_str, sizeof(url_str), "%s%s", nodePaths[selectedNodeIndex].url, apiPath);
+    snprintf(buff_small_1, sizeof(buff_small_1), "%s%s", nodePaths[selectedNodeIndex].url, apiPath);
 
-    if (https.begin(espClientSecure, url_str))
+    if (https.begin(espClientSecure, buff_small_1))
     {
         int httpCode = https.GET();
         if (httpCode > 0)
@@ -50,11 +60,25 @@ char *DeSoLib::getRequest(const char *apiPath)
             if (httpCode == HTTP_CODE_OK)
             {
                 strncpy(buff_large, https.getString().c_str(), sizeof(buff_large));
+                //buff_ptr = https.getString().c_str();
+            }
+            else
+            {
+                debug_print(httpCode);
             }
         }
+        else
+        {
+            debug_print(httpCode);
+        }
+    }
+    else
+    {
+        debug_print("Error https");
     }
     https.end();
-    return buff_large;
+    buff_ptr = buff_large;
+    return buff_ptr;
 }
 const char *DeSoLib::postRequest(const char *apiPath, const char *data)
 {
@@ -62,8 +86,15 @@ const char *DeSoLib::postRequest(const char *apiPath, const char *data)
     static char buff_null[] = "{}";
     const char *buff_ptr;
     buff_ptr = buff_null;
-    memset(buff_large, 0, sizeof(buff_large));
-    espClientSecure.setCACert(nodePaths[selectedNodeIndex].caRootCert);
+    //memset(buff_large, 0, sizeof(buff_large));
+    if (strcmp(nodePaths[selectedNodeIndex].caRootCert, ""))
+    {
+        espClientSecure.setCACert(nodePaths[selectedNodeIndex].caRootCert);
+    }
+    else
+    {
+        espClientSecure.setInsecure();
+    }
     snprintf(buff_small_1, sizeof(buff_small_1), "%s%s", nodePaths[selectedNodeIndex].url, apiPath);
 
     if (https.begin(espClientSecure, buff_small_1))
@@ -103,7 +134,7 @@ const char *DeSoLib::postRequest(const char *apiPath, const char *data)
     return buff_ptr;
 }
 
-char *DeSoLib::getNodeHealthCheck()
+const char *DeSoLib::getNodeHealthCheck()
 {
     return getRequest(RoutePathHealthCheck);
 }
@@ -120,7 +151,7 @@ void DeSoLib::updateNodeHealthCheck()
     }
 }
 
-char *DeSoLib::getExchangeRates()
+const char *DeSoLib::getExchangeRates()
 {
     return getRequest(ExchangeRateRoute);
 }

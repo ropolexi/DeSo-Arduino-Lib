@@ -92,7 +92,7 @@ void loop()
     lcd.setCursor(0,1);
     lcd.print("C:$");
     lcd.print(temp,1);
-    deso.updateUsersStateless("BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8", true, &profile1);
+    deso.updateUsersStateless("BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8", false, &profile1);
     Serial.print("Wallet Balance:");
     double balanceCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.BalanceNanos / 1000000000.0);
     temp = balanceCents / 100.0;
