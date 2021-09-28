@@ -2,13 +2,13 @@
 #include "DeSoLib.h"
 #include <WiFi.h>
 #include "cert.h"
-DeSoLib deso;
 
-//fill in wifi details
+//Fill in the ssid and password
 const char ssid[] = "";
 const char wifi_pass[] = "";
 
-DeSoLib::Profile profile1; //variable to store user profile details
+DeSoLib deso;
+int server_index = 0;
 
 //initialize wifi and serial port
 void esp_init()
@@ -27,17 +27,36 @@ void esp_init()
   Serial.println("Connected to Wifi.");
 }
 
+void skipNotWorkingNode()
+{
+  do
+  {
+    deso.selectDefaultNode(server_index);
+    deso.updateNodeHealthCheck();
+    if (!deso.getSelectedNodeStatus())
+    {
+      server_index++;
+      if (server_index >= deso.getMaxNodes())
+        server_index = 0;
+    }
+  } while (!deso.getSelectedNodeStatus());
+  Serial.print("\nDeSo Node: ");
+  Serial.println(deso.getSelectedNodeUrl());
+}
+
 void setup()
 {
   esp_init();
   deso.addNodePath("https://bitclout.com", bitclout_caRootCert);
-  deso.selectDefaultNode(0);
+  deso.addNodePath("https://nachoaverage.com", nachoaverage_caRootCert);
+  deso.addNodePath("https://members.giftclout.com", giftclout_caRootCert);
 }
 
 void loop()
 {
   if (WiFi.isConnected())
   {
+    skipNotWorkingNode();//skip not working node untill working node found
     Serial.println("Refreshing rates..");
     deso.updateExchangeRates();
 
@@ -46,5 +65,9 @@ void loop()
     Serial.print("BTC: $");
     Serial.println(deso.USDCentsPerBitcoinExchangeRate / 100.0);
   }
-  delay(5000); //delay 5 seconds
+
+  delay(1000); //delay 1 second
+  server_index++; //try different nodes
+  if (server_index >= deso.getMaxNodes())
+    server_index = 0;
 }
