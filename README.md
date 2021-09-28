@@ -1,7 +1,9 @@
 # DeSo Arduino Library
 
 ## Introduction
-This arduino library is for the DeSo (Decentralized Social) Network Blockchain.
+This is an unofficial personal arduino library for the DeSo (Decentralized Social) Blockchain.
+
+"DeSo is a new layer-1 blockchain built from the ground up to scale decentralized social applications to one billion users" [https://www.deso.org]
 
 ## Features
 - Multiple DeSo Nodes supported for decentralization 
@@ -72,4 +74,7 @@ No low memory issues.
 But if the number of following is huge (more than 600) and number of assets are huge number(greater than 50) 
 account balance or all the assets hodle balance will not be shown due to memory limitation.
 
+**this library does not need any seed phrase to access any accounts**
+
+**Use this library at your own risk, I will not take any responsible for any coins**
 
