@@ -8,6 +8,8 @@ int server_index = 0;
 void setup()
 {
   esp_init();
+  //You may need to add root certificate if you want to make sure the site is correct
+  //Since this example is just for display purposes it is ommited here
   deso.addNodePath("https://bitclout.com", "");
   deso.addNodePath("https://nachoaverage.com", "");
   deso.addNodePath("https://members.giftclout.com", "");
@@ -22,11 +24,13 @@ void loop()
     getExchangeRates();
     getProfile("ropolexi");
   }
-  delay(10000);//delay 10 seconds
-  server_index++;//select next node
-  if (server_index >= deso.getMaxNodes()) server_index = 0;
+  delay(10000);   //delay 10 seconds
+  server_index++; //select next node
+  if (server_index >= deso.getMaxNodes())
+    server_index = 0;
 }
-void getExchangeRates() {
+void getExchangeRates()
+{
   deso.updateExchangeRates();
   Serial.print("DeSo Coin Value: $");
   Serial.println(deso.USDCentsPerBitCloutExchangeRate / 100.0);
@@ -34,24 +38,29 @@ void getExchangeRates() {
   Serial.println(deso.USDCentsPerBitcoinExchangeRate / 100.0);
 }
 
-void skipNotWorkingNode() {
-  do {
+void skipNotWorkingNode()
+{
+  do
+  {
     deso.selectDefaultNode(server_index);
     deso.updateNodeHealthCheck();
-    if (!deso.getSelectedNodeStatus()) {
+    if (!deso.getSelectedNodeStatus())
+    {
       server_index++;
-      if (server_index >= deso.getMaxNodes()) server_index = 0;
+      if (server_index >= deso.getMaxNodes())
+        server_index = 0;
     }
   } while (!deso.getSelectedNodeStatus());
   Serial.print("\nDeSo Node: ");
   Serial.println(deso.getSelectedNodeUrl());
 }
 
-void getProfile(const char *username) {
+void getProfile(const char *username)
+{
   Serial.println("=======Profile========");
   DeSoLib::Profile profile1;
   delay(1000);
-  deso.updateSingleProfile(username, "" , &profile1); //search by username or public key
+  deso.updateSingleProfile(username, "", &profile1); //search by username or public key
   //deso.updateSingleProfile("", "BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8", &profile1);
 
   Serial.print("Username: ");
@@ -70,9 +79,15 @@ void getProfile(const char *username) {
   Serial.print("Total HODL Asset Balance: $");
   double assetsValue = (profile1.TotalHODLBalanceClout * deso.USDCentsPerBitCloutExchangeRate) / 100.0;
   Serial.println(assetsValue);
+  deso.updateLastPostForPublicKey(profile1.PublicKeyBase58Check, &profile1);
+  Serial.print("Last Post Likes: ");
+  Serial.println(profile1.lastPostLikes);
+  Serial.print("Last Post Diamonds: ");
+  Serial.println(profile1.lastPostDiamonds);
   Serial.println("======================");
 }
-void esp_init() {
+void esp_init()
+{
   Serial.begin(9600);
   Serial.setDebugOutput(true);
   WiFi.enableSTA(true);
