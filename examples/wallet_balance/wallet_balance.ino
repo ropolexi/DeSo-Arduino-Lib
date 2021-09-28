@@ -8,8 +8,6 @@ DeSoLib deso;
 const char ssid[] = "";
 const char wifi_pass[] = "";
 
-DeSoLib deso;
-
 DeSoLib::Profile profile1;//variable to store user profile details
 
 //initialize wifi and serial port
