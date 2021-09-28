@@ -232,7 +232,7 @@ const char *DeSoLib::getUsersStateless(const char *messagePayload)
 void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check, bool skipHodlings, Profile *prof)
 {
     static char messagePayload[200];
-    DynamicJsonDocument doc(ESP.getMaxAllocHeap() - 5000);
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap()/2 - 5000);
     doc["PublicKeysBase58Check"][0] = PublicKeysBase58Check;
     doc["skipHodlings"] = skipHodlings;
     serializeJson(doc, messagePayload);
@@ -296,7 +296,7 @@ const char *DeSoLib::getHodlersForPublicKey(const char *messagePayload)
 void DeSoLib::updateHodlersForPublicKey(const char *username, const char *PublicKeyBase58Check, int NumToFetch, Profile *prof)
 {
     static char postData[100];
-    DynamicJsonDocument doc(ESP.getMaxAllocHeap() - 5000);
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap()/2 - 5000);
     if (strlen(username) > 0)
     {
         doc["Username"] = username;
@@ -366,7 +366,7 @@ const char *DeSoLib::getPostsForPublicKey(const char *messagePayload){
 
 void DeSoLib::updateLastPostForPublicKey(const char *PublicKeysBase58Check,Profile *prof){
     static char postData[100];
-    DynamicJsonDocument doc(ESP.getMaxAllocHeap() - 5000);
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap()/2 - 5000);
     doc["PublicKeyBase58Check"]=PublicKeysBase58Check;
     doc["NumToFetch"]=1;
     serializeJson(doc, postData);

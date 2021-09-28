@@ -18,16 +18,19 @@ void setup()
 }
 void loop()
 {
-  if (WiFi.isConnected())
+  while (true)
   {
-    skipNotWorkingNode();
-    getExchangeRates();
-    getProfile("ropolexi");
+    if (WiFi.isConnected())
+    {
+      skipNotWorkingNode();
+      getExchangeRates();
+      getProfile("ropolexi");
+    }
+    delay(10000);   //delay 10 seconds
+    server_index++; //select next node
+    if (server_index >= deso.getMaxNodes())
+      server_index = 0;
   }
-  delay(10000);   //delay 10 seconds
-  server_index++; //select next node
-  if (server_index >= deso.getMaxNodes())
-    server_index = 0;
 }
 void getExchangeRates()
 {
