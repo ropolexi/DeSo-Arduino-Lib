@@ -10,6 +10,8 @@ This arduino library is for the DeSo (Decentralized Social) Network Blockchain.
 - Wallet Balance
 - All HODLE Asset balance
 - Top 10 Hodlers
+- Last post like count
+- Last post diamond count
 
 
 ## Serial Output Results

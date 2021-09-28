@@ -165,7 +165,9 @@ void DeSoLib::updateExchangeRates()
     {
         USDCentsPerBitCloutExchangeRate = doc["USDCentsPerBitCloutExchangeRate"];
         USDCentsPerBitcoinExchangeRate = doc["USDCentsPerBitcoinExchangeRate"];
+        
     }
+    doc.garbageCollect();
 }
 const char *DeSoLib::getSingleProfile(const char *messagePayload)
 {
@@ -211,6 +213,7 @@ void DeSoLib::updateSingleProfile(const char *username, const char *PublicKeyBas
             strncpy(prof->Username, username, sizeof(prof->Username));
             strcpy(prof->PublicKeyBase58Check, "NULL");
         }
+        
     }
     else
     {
@@ -218,6 +221,7 @@ void DeSoLib::updateSingleProfile(const char *username, const char *PublicKeyBas
         strncpy(prof->Username, username, sizeof(prof->Username));
         strcpy(prof->PublicKeyBase58Check, "NULL");
     }
+    doc.garbageCollect();
 }
 
 const char *DeSoLib::getUsersStateless(const char *messagePayload)
@@ -271,6 +275,7 @@ void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check, bool skipH
         //Serial.println(ESP.getMaxAllocHeap());
         prof->TotalHODLBalanceClout = HODLBalance;
         prof->TotalHodleNum = TotalHodleNum;
+        
     }
     if (!error)
     {
@@ -279,6 +284,7 @@ void DeSoLib::updateUsersStateless(const char *PublicKeysBase58Check, bool skipH
     {
         debug_print("\nJson Error,incomplete due to low memory\n");
     }
+    doc.garbageCollect();
     // Print the result
     //serializeJsonPretty(doc, Serial);
 }
@@ -337,11 +343,13 @@ void DeSoLib::updateHodlersForPublicKey(const char *username, const char *Public
                     break;
             }
         }
+        
     }
     else
     {
         debug_print("Json Error");
     }
+    doc.garbageCollect();
 
 }
 
@@ -378,11 +386,13 @@ void DeSoLib::updateLastPostForPublicKey(const char *PublicKeysBase58Check,Profi
     {
         prof->lastPostLikes=doc["Posts"][0]["LikeCount"] ;
         prof->lastPostDiamonds=doc["Posts"][0]["DiamondCount"] ;
+        
     }
     else
     {
         debug_print("Json Error");
     }
+    doc.garbageCollect();
 }
 
 DeSoLib::~DeSoLib()
