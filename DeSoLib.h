@@ -39,6 +39,8 @@ class DeSoLib{
         char TopHodlersUserNames[10][20];
         int lastPostLikes;
         int lastPostDiamonds;
+        int lastNPostLikes;
+        int lastNPostDiamonds;
 
     };
 
@@ -70,6 +72,7 @@ class DeSoLib{
     void clearTopHodlersUserNames(Profile *prof);
     const char *getPostsForPublicKey(const char *messagePayload);
     int updateLastPostForPublicKey(const char *PublicKeysBase58Check,Profile *prof);
+    int updateLastNumPostsForPublicKey(const char *PublicKeysBase58Check,int NumToFetch,Profile *prof);
     const char * getUserBalance(const char *messagePayload);
     int updateUsersBalance(const char *PublicKeysBase58Check,Profile *prof);
     ~DeSoLib();

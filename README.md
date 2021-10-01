@@ -60,11 +60,14 @@ Total HODLE Asset Balance: $35.40
 ```
 ## Device Supported
 
-ESP32 Module (US $5.99)
+![esp32](esp32.jpg)
 
+ESP32 Module (US $5.99)
 https://www.ebay.com/itm/312621586322?hash=item48c9b2d792:g:BtUAAOSwYMlc4sAF
 
 
+## Changes
+- (2021-10-1) support old and new api changes due to rebranding.
 ## Dependency Libraries
 ArduinoJson - https://github.com/bblanchon/ArduinoJson
 

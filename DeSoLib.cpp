@@ -3,7 +3,7 @@
 #include <HTTPClient.h>
 #include "ArduinoJson.h"
 
-#define DEBUG_LOG true
+#define DEBUG_LOG false
 
 DeSoLib::DeSoLib()
 {
@@ -414,6 +414,49 @@ int DeSoLib::updateLastPostForPublicKey(const char *PublicKeysBase58Check, Profi
     {
         prof->lastPostLikes = doc["Posts"][0]["LikeCount"];
         prof->lastPostDiamonds = doc["Posts"][0]["DiamondCount"];
+        status=1;
+    }
+    else
+    {
+        debug_print("Json Error");
+    }
+    doc.garbageCollect();
+    return status;
+}
+
+int DeSoLib::updateLastNumPostsForPublicKey(const char *PublicKeysBase58Check,int NumToFetch,Profile *prof){
+    int status=0;
+    static char postData[100];
+    DynamicJsonDocument doc(ESP.getMaxAllocHeap() / 2 - 5000);
+    doc["PublicKeyBase58Check"] = PublicKeysBase58Check;
+    doc["NumToFetch"] = NumToFetch;
+    serializeJson(doc, postData);
+    doc.clear();
+    const char *payload = getPostsForPublicKey(postData);
+    DynamicJsonDocument filter(200);
+    filter["Posts"][0]["LikeCount"] = true;
+    filter["Posts"][0]["DiamondCount"] = true;
+
+    // Deserialize the document
+    DeserializationError error = deserializeJson(doc, payload, DeserializationOption::Filter(filter));
+    if (doc.isNull())
+    {
+        serializeJsonPretty(doc, Serial);
+    }
+    if (!error)
+    {
+        prof->lastNPostLikes=0;
+        prof->lastNPostDiamonds=0;
+        
+        
+        JsonArray arr = doc["Posts"].as<JsonArray>();
+        for (JsonVariant value : arr)
+        {
+            int likes = value["LikeCount"];
+            int diamonds = value["DiamondCount"];
+            prof->lastNPostLikes = prof->lastNPostLikes + likes;
+            prof->lastNPostDiamonds = prof->lastNPostDiamonds + diamonds;
+        }
         status=1;
     }
     else
