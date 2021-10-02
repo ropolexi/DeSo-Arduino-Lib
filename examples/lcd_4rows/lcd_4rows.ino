@@ -6,10 +6,11 @@
 #include <LiquidCrystal_I2C.h>
 #include "customchars.h"
 
-// Set the LCD address to 0x27 for a 16 chars and 2 line display
+// device :esp32-cam
 #define I2C_SDA 14 // SDA Connected to GPIO 14
 #define I2C_SCL 15 // SCL Connected to GPIO 15
 
+// Set the LCD address to 0x27 for a 16 chars and 4 line display
 LiquidCrystal_I2C lcd(0x27, 16, 4);
 
 //Fill in the ssid and password
