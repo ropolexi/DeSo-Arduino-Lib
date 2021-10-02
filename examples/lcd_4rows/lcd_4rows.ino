@@ -6,7 +6,7 @@
 #include <LiquidCrystal_I2C.h>
 #include "customchars.h"
 
-// Set the LCD address to 0x27 for a 16 chars and 4 line display
+// Set the LCD address to 0x27 for a 16 chars and 2 line display
 #define I2C_SDA 14 // SDA Connected to GPIO 14
 #define I2C_SCL 15 // SCL Connected to GPIO 15
 
@@ -16,17 +16,38 @@ LiquidCrystal_I2C lcd(0x27, 16, 4);
 const char ssid[] = "";
 const char wifi_pass[] = "";
 DeSoLib deso;
+DeSoLib::Profile profile1;
 int server_index = 0;
+
+void nextServer()
+{
+  server_index++; //try different nodes
+  if (server_index >= deso.getMaxNodes())
+    server_index = 0;
+}
+void skipNotWorkingNode()
+{
+  do
+  {
+    deso.selectDefaultNode(server_index);
+    deso.updateNodeHealthCheck();
+    if (!deso.getSelectedNodeStatus())
+    {
+      nextServer();
+    }
+  } while (!deso.getSelectedNodeStatus());
+  Serial.print("\nDeSo Node: ");
+  Serial.println(deso.getSelectedNodeUrl());
+}
 
 void setup()
 {
-  // put your setup code here, to run once:
   Wire.begin(I2C_SDA, I2C_SCL);
   lcd.begin();
   lcd.backlight();
-  lcd.createChar(0, deso_logo);
-  lcd.createChar(1, diamond);
-  lcd.createChar(2, heart);
+  lcd.createChar(0, deso_logo); //custom char for deso logo
+  lcd.createChar(1, diamond);   //custom char for diomand icon
+  lcd.createChar(2, heart);     //custom char for like icon
   lcd.clear();
   lcd.print("DeSo Dashbaord");
   lcd.setCursor(0, 1);
@@ -45,14 +66,63 @@ void setup()
   deso.addNodePath("https://bitclout.com", bitclout_caRootCert);
   deso.addNodePath("https://nachoaverage.com", nachoaverage_caRootCert);
   deso.addNodePath("https://members.giftclout.com", giftclout_caRootCert);
+  //without root cert ,do not use this method for critical application
+  //we are not sending any private keys,for dashboards it is fine,
+  deso.addNodePath("https://supernovas.app", "");
+  deso.addNodePath("https://love4src.com", "");
+  deso.addNodePath("https://stetnode.com", "");
+  deso.addNodePath("https://bitcloutespañol.com", "");
+  deso.addNodePath("https://desocial.nl", "");
+
   deso.selectDefaultNode(0);
-  lcd.clear();
+  lcd.setCursor(-4,3);
+  lcd.print("Updating..");
+
 }
-void nextServer()
+void updateDisplay()
 {
-  server_index++; //try different nodes
-  if (server_index >= deso.getMaxNodes())
-    server_index = 0;
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  char str_url[17];
+  strncpy(str_url, &deso.getSelectedNodeUrl()[0] + 8, 16); //limit to 16 charactors
+  lcd.print(str_url);
+
+  lcd.setCursor(0, 1);
+  lcd.print("D:$");
+  double temp = deso.USDCentsPerBitCloutExchangeRate / 100.0;
+  lcd.print(temp, 0);
+
+  double coinPriceUSDCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.CoinPriceBitCloutNanos / 1000000000.0);
+  temp = coinPriceUSDCents / 100.0;
+  lcd.setCursor(0 - 4, 2);
+  lcd.print("        ");
+  lcd.setCursor(0 - 4, 2);
+  lcd.print("C:$");
+  lcd.print(temp, 1);
+
+  double balanceCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.BalanceNanos / 1000000000.0);
+  temp = balanceCents / 100.0;
+  lcd.setCursor(8 - 4, 2);
+  lcd.print("        ");
+  lcd.setCursor(8 - 4, 2);
+  lcd.print("B:$");
+  lcd.print(temp, 1);
+
+  double assetsValue = (profile1.TotalHODLBalanceClout * deso.USDCentsPerBitCloutExchangeRate) / 100.0;
+  lcd.setCursor(8, 1);
+  temp = assetsValue;
+  lcd.print("H:$");
+  lcd.print(temp, 1);
+
+  lcd.setCursor(-4, 3);
+  lcd.write(2);
+  lcd.print(" ");
+  lcd.print(profile1.lastNPostLikes);
+
+  lcd.setCursor(-4 + 8, 3);
+  lcd.write(1);
+  lcd.print(" ");
+  lcd.print(profile1.lastNPostDiamonds);
 }
 void loop()
 {
@@ -60,43 +130,13 @@ void loop()
   {
     if (WiFi.isConnected())
     {
-      do
-      {
-        deso.selectDefaultNode(server_index);
-        if (!deso.updateNodeHealthCheck())
-        {
-          nextServer();
-        }
-      } while (!deso.getSelectedNodeStatus());
-
-      Serial.println();
-      Serial.print("DeSo Node: ");
-      Serial.println(deso.getSelectedNodeUrl());
-
+      skipNotWorkingNode();
       if (!deso.updateExchangeRates())
       {
         Serial.println("exchange error!");
         nextServer();
         continue;
       }
-      lcd.setCursor(0,0);
-      lcd.print("                ");
-      lcd.setCursor(0,0);
-      lcd.print(&deso.getSelectedNodeUrl()[0]+8);
-
-      Serial.print("DeSo Coin Value: $");
-      double temp = deso.USDCentsPerBitCloutExchangeRate / 100.0;
-      Serial.println(temp);
-      lcd.setCursor(0, 1);
-      lcd.print("        ");
-      lcd.setCursor(0, 1);
-      lcd.print("D:$");
-      lcd.print(temp, 0);
-      //Serial.println("BTC (USD):");
-      //Serial.println(deso.USDCentsPerBitcoinExchangeRate/100.0);
-      Serial.println("=======Profile========");
-      DeSoLib::Profile profile1;
-      delay(1000);
       //deso.updateSingleProfile("ropolexi", "" ,&profile1);//search by username or public key
       int status = deso.updateSingleProfile("", "BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8", &profile1);
       if (!status)
@@ -105,23 +145,7 @@ void loop()
         nextServer();
         continue;
       }
-      Serial.print("Username: ");
-      Serial.println(profile1.Username);
-      Serial.print("PublicKey: ");
-      Serial.println(profile1.PublicKeyBase58Check);
-      Serial.print("Creator Coin Price: $");
-
-      double coinPriceUSDCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.CoinPriceBitCloutNanos / 1000000000.0);
-      temp = coinPriceUSDCents / 100.0;
-      Serial.println(temp);
-      
-      
-      lcd.setCursor(0-4, 2);
-      lcd.print("        ");
-      lcd.setCursor(0-4, 2);
-      lcd.print("C:$");
-      lcd.print(temp, 1);
-      status = deso.updateUsersStateless("BC1YLfghVqEg2igrpA36eS87pPEGiZ65iXYb8BosKGGHz7JWNF3s2H8", false, &profile1);
+      status = deso.updateUsersStateless(profile1.PublicKeyBase58Check, false, &profile1);
       if (!status)
       {
         Serial.println("user stateless error!");
@@ -129,48 +153,17 @@ void loop()
         continue;
       }
 
-      Serial.print("Wallet Balance:");
-      double balanceCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.BalanceNanos / 1000000000.0);
-      temp = balanceCents / 100.0;
-      lcd.setCursor(8-4, 2);
-      lcd.print("        ");
-      lcd.setCursor(8-4, 2);
-      lcd.print("B:$");
+      status = deso.updateLastNumPostsForPublicKey(profile1.PublicKeyBase58Check, 5, &profile1);
+      if (!status)
+      {
+        Serial.println("update LastNum Posts For PublicKey error!");
+        nextServer();
+        continue;
+      }
 
-      lcd.print(temp, 1);
-      Serial.println(balanceCents / 100.0);
-      Serial.print("Total HODLE assets : ");
-      Serial.println(profile1.TotalHodleNum);
-      Serial.print("Total HODLE Asset Balance: $");
-      double assetsValue = (profile1.TotalHODLBalanceClout * deso.USDCentsPerBitCloutExchangeRate) / 100.0;
-      Serial.println(assetsValue);
-      lcd.setCursor(8, 1);
-      lcd.print("        ");
-      lcd.setCursor(8, 1);
-      temp = assetsValue;
-      lcd.print("H:$");
-      lcd.print(temp, 1);
-      deso.updateLastNumPostsForPublicKey(profile1.PublicKeyBase58Check,5, &profile1);
-      Serial.print("Last Post Likes: ");
-      Serial.println(profile1.lastPostLikes);
-      Serial.print("Last Post Diamonds: ");
-      Serial.println(profile1.lastNPostDiamonds);
-      lcd.setCursor(-4,3);
-      lcd.print("        ");
-      lcd.setCursor(-4,3);
-      lcd.write(2);
-      lcd.print(" ");
-      lcd.print(profile1.lastNPostLikes);
-
-      lcd.setCursor(-4+8,3);
-      lcd.print("        ");
-      lcd.setCursor(-4+8,3);
-      lcd.write(1);
-      lcd.print(" ");
-      lcd.print(profile1.lastNPostDiamonds);
-      Serial.println("======================");
+      updateDisplay();
     }
-    delay(10000UL);
+    delay(10000UL);//10 seconds delay
     nextServer();
   }
 }
