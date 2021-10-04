@@ -66,6 +66,21 @@ ESP32 Module (US $5.99)
 https://www.ebay.com/itm/312621586322?hash=item48c9b2d792:g:BtUAAOSwYMlc4sAF
 
 
+## Functions
+- void addNodePath(const char* url,const char* cert);
+- int getMaxNodes();
+- void selectDefaultNode(int index);
+- char* getSelectedNodeUrl();
+- bool getSelectedNodeStatus();
+- int updateNodeHealthCheck();
+- int updateExchangeRates();
+- int updateSingleProfile(const char *username,const char *PublicKeyBase58Check,Profile *prof);
+- int updateUsersStateless(const char *PublicKeysBase58Check,bool SkipHodlings,Profile *prof);
+- int updateHodlersForPublicKey(const char *username,const char *PublicKeyBase58Check,int NumToFetch,Profile *prof);
+- void clearTopHodlersUserNames(Profile *prof);
+- int updateLastPostForPublicKey(const char *PublicKeysBase58Check,Profile *prof);
+- int updateLastNumPostsForPublicKey(const char *PublicKeysBase58Check,int NumToFetch,Profile *prof);
+- int updateUsersBalance(const char *PublicKeysBase58Check,Profile *prof);
 ## Changes
 - (2021-10-1) support old and new api changes due to rebranding.
 ## Dependency Libraries
