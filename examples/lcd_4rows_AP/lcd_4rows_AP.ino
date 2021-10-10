@@ -184,7 +184,7 @@ void restore_data()
     EEPROM.get(0 + sizeof(ssid_ap) + sizeof(pass_ap), username);
     Serial.print("\nSSID:");
     Serial.println(ssid_ap);
-   
+
     Serial.print("\nUsername:");
     Serial.println(username);
 }
@@ -234,7 +234,7 @@ void setup()
     lcd.setCursor(-4, 3);
     lcd.print("Updating..");
     byte crash_status;
-    EEPROM.get(CRASH_STATUS_ADD,crash_status);
+    EEPROM.get(CRASH_STATUS_ADD, crash_status);
     if (crash_status == 1)
     {
         //erase username if device crash due to not enough memory for the current username
@@ -298,58 +298,62 @@ void loop()
         server.handleClient();
         if (millis() - timer_refresh > 10000)
         {
-            if(strlen(username)<1){
-                timer_refresh=millis();
-                lcd.clear();
-                lcd.setCursor(-4, 3);
-                lcd.print("No User");
-                continue;
-            }
 
-            if (WiFi.isConnected() )
+            if (WiFi.isConnected())
             {
-                Serial.println(username);
-                skipNotWorkingNode();
-                if (!deso.updateExchangeRates())
+                if (strlen(username) < 1)
                 {
-                    Serial.println("exchange error!");
-                    nextServer();
-                    continue;
-                }
-
-                int status = deso.updateSingleProfile(username, "", &profile1);
-                if (!status)
-                {
-                    Serial.println("single profile error!");
+                    timer_refresh = millis();
                     lcd.clear();
                     lcd.setCursor(-4, 3);
                     lcd.print("No User");
-                    nextServer();
-                    continue;
+                    timer_refresh = millis();
                 }
-
-                status = deso.updateUsersStateless(profile1.PublicKeyBase58Check, false, &profile1);
-                if (!status)
+                else
                 {
-                    Serial.println("user stateless error!");
-                    nextServer();
-                    continue;
-                }
+                    Serial.println(username);
+                    skipNotWorkingNode();
+                    if (!deso.updateExchangeRates())
+                    {
+                        Serial.println("exchange error!");
+                        nextServer();
+                        continue;
+                    }
 
-                status = deso.updateLastNumPostsForPublicKey(profile1.PublicKeyBase58Check, 5, &profile1);
-                if (!status)
-                {
-                    Serial.println("update LastNum Posts For PublicKey error!");
-                    nextServer();
-                    continue;
-                }
+                    int status = deso.updateSingleProfile(username, "", &profile1);
+                    if (!status)
+                    {
+                        Serial.println("single profile error!");
+                        lcd.clear();
+                        lcd.setCursor(-4, 3);
+                        lcd.print("No User");
+                        nextServer();
+                        continue;
+                    }
 
-                updateDisplay();
-                nextServer();
-                username_show = true;
-                timer_refresh = millis();
-                EEPROM.put(CRASH_STATUS_ADD, (byte)0);
-                EEPROM.commit();
+                    status = deso.updateUsersStateless(profile1.PublicKeyBase58Check, false, &profile1);
+                    if (!status)
+                    {
+                        Serial.println("user stateless error!");
+                        nextServer();
+                        continue;
+                    }
+
+                    status = deso.updateLastNumPostsForPublicKey(profile1.PublicKeyBase58Check, 5, &profile1);
+                    if (!status)
+                    {
+                        Serial.println("update LastNum Posts For PublicKey error!");
+                        nextServer();
+                        continue;
+                    }
+
+                    updateDisplay();
+                    nextServer();
+                    username_show = true;
+                    timer_refresh = millis();
+                    EEPROM.put(CRASH_STATUS_ADD, (byte)0);
+                    EEPROM.commit();
+                }
             }
             else
             {
