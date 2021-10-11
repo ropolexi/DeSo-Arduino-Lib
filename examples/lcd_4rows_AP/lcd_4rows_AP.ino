@@ -127,6 +127,7 @@ void profilehandleForm()
                             msg += String(username);
                             msg += ",";
                             EEPROM.put(0 + sizeof(ssid_ap) + sizeof(pass_ap), username);
+                            profile1.TotalHODLBalanceClout=0;
                         }
                         else
                         {
@@ -331,7 +332,7 @@ void loop()
     while (true)
     {
         server.handleClient();
-        if (millis() - timer_refresh > 10000)
+        if (millis() - timer_refresh > 3000)
         {
 
             if (WiFi.isConnected())
@@ -436,7 +437,7 @@ void loop()
             }
         }
 
-        if (millis() - timer_refresh > 2000 && username_show)
+        if (millis() - timer_refresh > 1500 && username_show)
         { //show uusername after 2 seconds displaying other info
             username_show = false;
             lcd.setCursor(0, 0);
