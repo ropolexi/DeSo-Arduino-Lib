@@ -46,6 +46,8 @@ int server_index = 0;
 #define CRASH_STATUS_ADD 500
 #define UPDATE_USERSTATELESS_ADD 499
 bool updateUsersStateless = false;
+unsigned long timer_refresh = 30000;
+
 void handleRoot()
 {
     server.send(200, "text/html", postForms);
@@ -128,6 +130,7 @@ void profilehandleForm()
                             msg += ",";
                             EEPROM.put(0 + sizeof(ssid_ap) + sizeof(pass_ap), username);
                             profile1.TotalHODLBalanceClout=0;
+                            timer_refresh=millis()+30000UL;
                         }
                         else
                         {
@@ -328,11 +331,11 @@ void updateDisplay()
 void loop()
 {
     static bool username_show = false;
-    static unsigned long timer_refresh = 10000;
+
     while (true)
     {
         server.handleClient();
-        if (millis() - timer_refresh > 3000)
+        if (millis() - timer_refresh > 30000)//update every 30 seconds
         {
 
             if (WiFi.isConnected())
@@ -437,7 +440,7 @@ void loop()
             }
         }
 
-        if (millis() - timer_refresh > 1500 && username_show)
+        if (millis() - timer_refresh > 2000 && username_show)
         { //show uusername after 2 seconds displaying other info
             username_show = false;
             lcd.setCursor(0, 0);
