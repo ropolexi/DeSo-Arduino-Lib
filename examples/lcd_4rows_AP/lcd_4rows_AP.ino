@@ -44,6 +44,7 @@ DeSoLib deso;
 DeSoLib::Profile profile1;
 int server_index = 0;
 #define CRASH_STATUS_ADD 500
+#define UPDATE_USERSTATELESS_ADD 499
 bool updateUsersStateless = false;
 void handleRoot()
 {
@@ -101,7 +102,8 @@ void wifihandleForm()
 void profilehandleForm()
 {
     String msg;
-    String header = "[<a href='/'>Home</a>]<br>";
+    
+    String header = "<head><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>[<a href='/'>Home</a>]<br>";
     if (server.method() != HTTP_POST)
     {
         server.send(405, "text/plain", "Method Not Allowed");
@@ -128,9 +130,13 @@ void profilehandleForm()
                         }
                         else
                         {
-                            msg += "Error:can not use this ";
-                            msg += String(username);
-                            msg += " username,";
+                            if(WiFi.isConnected()){
+                                msg += "Error:can not use this ";
+                                msg += String(username);
+                                msg += " username,";
+                            }else{
+                                msg += "Error:no WIFI ";
+                            }
                             //EEPROM.put(0 + sizeof(ssid_ap) + sizeof(pass_ap), "");
                         }
                     }
@@ -142,11 +148,11 @@ void profilehandleForm()
                 if (usersStateless_str.length() != 0)
                 {
                     if(usersStateless_str.equals("1")){
-                        updateUsersStateless = true;
-
+                        updateUsersStateless = true;               
+                        EEPROM.put(UPDATE_USERSTATELESS_ADD, (byte)1);
                     }else{
                         updateUsersStateless = false;
-
+                        EEPROM.put(UPDATE_USERSTATELESS_ADD, (byte)0);
                     }
                 }
             }
@@ -204,6 +210,10 @@ void restore_data()
 
     Serial.print("\nUsername:");
     Serial.println(username);
+
+    EEPROM.get(UPDATE_USERSTATELESS_ADD, updateUsersStateless);
+    Serial.print("\nUpdate Users Stateless:");
+    Serial.println(updateUsersStateless);
 }
 
 void lcd_init()
