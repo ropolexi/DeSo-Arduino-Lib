@@ -7,6 +7,7 @@
 
 DeSoLib::DeSoLib()
 {
+    
 }
 void DeSoLib::addNodePath(const char *url, const char *cert)
 {

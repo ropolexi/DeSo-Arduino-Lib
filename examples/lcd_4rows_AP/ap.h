@@ -24,7 +24,7 @@ DeSo Dashbaord
     <form method="POST" action="/profile/">
         <table width="100%">
         <tr><td>Username</td><td><input type="text" name="username" id="username" value="" maxlength="20"></td></tr>
-        <tr><td>Update Users Stateless(Holdings & Balance)</td><td>
+        <tr><td>Update User Holdings</td><td>
         <select name="usersStateless" id="usersStateless">
             <option value="1">Enable</option>
             <option value="0">Disable</option>     

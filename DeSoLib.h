@@ -30,17 +30,17 @@ class DeSoLib{
     struct Profile{
         char PublicKeyBase58Check[56];
         char Username[20];
-        double CoinsInCirculationNanos;
-        double CoinPriceBitCloutNanos;
-        double BalanceNanos;
-        double UnconfirmedBalanceNanos;
-        double TotalHODLBalanceClout;
-        int TotalHodleNum;
+        double CoinsInCirculationNanos=0;
+        double CoinPriceBitCloutNanos=0;
+        double BalanceNanos=0;
+        double UnconfirmedBalanceNanos=0;
+        double TotalHODLBalanceClout=0;
+        int TotalHodleNum=0;
         char TopHodlersUserNames[10][20];
-        int lastPostLikes;
-        int lastPostDiamonds;
-        int lastNPostLikes;
-        int lastNPostDiamonds;
+        int lastPostLikes=0;
+        int lastPostDiamonds=0;
+        int lastNPostLikes=0;
+        int lastNPostDiamonds=0;
 
     };
 

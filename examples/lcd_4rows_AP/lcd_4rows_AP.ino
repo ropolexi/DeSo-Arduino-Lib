@@ -9,11 +9,11 @@ change the wifi settings or profile settings and submit
 
 if username has large data parameters such as following and holding assets
 the device may restart due to low memory , and to prevent endless loop of restarts
-the username will be emptied. 
+the holdings output will be disabled. 
 
-Update Users Stateless can be disabled for those user profiles that are too large to handle
+Update Users Holdings can be disabled for those user profiles that are too large to handle
 by ESP32, if the device restarts for a given profile , update the username and disable the
-Update Users Stateless option(This is to get balance and user's holdings).
+Update Users holdings from updating.
 */
 #include <Arduino.h>
 #include "DeSoLib.h"
@@ -102,7 +102,7 @@ void wifihandleForm()
 void profilehandleForm()
 {
     String msg;
-    
+
     String header = "<head><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>[<a href='/'>Home</a>]<br>";
     if (server.method() != HTTP_POST)
     {
@@ -130,11 +130,14 @@ void profilehandleForm()
                         }
                         else
                         {
-                            if(WiFi.isConnected()){
+                            if (WiFi.isConnected())
+                            {
                                 msg += "Error:can not use this ";
                                 msg += String(username);
                                 msg += " username,";
-                            }else{
+                            }
+                            else
+                            {
                                 msg += "Error:no WIFI ";
                             }
                             //EEPROM.put(0 + sizeof(ssid_ap) + sizeof(pass_ap), "");
@@ -147,10 +150,13 @@ void profilehandleForm()
                 String usersStateless_str = server.arg(i);
                 if (usersStateless_str.length() != 0)
                 {
-                    if(usersStateless_str.equals("1")){
-                        updateUsersStateless = true;               
+                    if (usersStateless_str.equals("1"))
+                    {
+                        updateUsersStateless = true;
                         EEPROM.put(UPDATE_USERSTATELESS_ADD, (byte)1);
-                    }else{
+                    }
+                    else
+                    {
                         updateUsersStateless = false;
                         EEPROM.put(UPDATE_USERSTATELESS_ADD, (byte)0);
                     }
@@ -264,8 +270,10 @@ void setup()
     EEPROM.get(CRASH_STATUS_ADD, crash_status);
     if (crash_status == 1)
     {
-        //erase username if device crash due to not enough memory for the current username
-        EEPROM.put(0 + sizeof(ssid_ap) + sizeof(pass_ap), "");
+        //disable holdings if device crash due to not enough memory for the current username
+        //EEPROM.put(0 + sizeof(ssid_ap) + sizeof(pass_ap), "");
+        updateUsersStateless=false;
+        EEPROM.put(UPDATE_USERSTATELESS_ADD, (byte)0);
         EEPROM.commit();
     }
     EEPROM.put(CRASH_STATUS_ADD, (byte)1);
@@ -292,7 +300,7 @@ void updateDisplay()
     lcd.print("C:$");
     lcd.print(temp, 1);
 
-    double balanceCents = deso.USDCentsPerBitCloutExchangeRate * (profile1.BalanceNanos / 1000000000.0);
+    double balanceCents = deso.USDCentsPerBitCloutExchangeRate * ((profile1.BalanceNanos+profile1.UnconfirmedBalanceNanos) / 1000000000.0);
     temp = balanceCents / 100.0;
     lcd.setCursor(8 - 4, 2);
     lcd.print("        ");
@@ -370,6 +378,18 @@ void loop()
                             continue;
                         }
                     }
+                    else
+                    {
+                        Serial.println("updateUsersBalance...");
+                        status = deso.updateUsersBalance(profile1.PublicKeyBase58Check, &profile1);
+                        if (!status)
+                        {
+                            Serial.println("user balance error!");
+                            nextServer();
+                            continue;
+                        }
+                    }
+
                     Serial.println("updateLastNumPostsForPublicKey...");
 
                     status = deso.updateLastNumPostsForPublicKey(profile1.PublicKeyBase58Check, 5, &profile1);
