@@ -11,21 +11,23 @@ if username has large data parameters such as following and holding assets
 the device may restart due to low memory , and to prevent endless loop of restarts
 the username will be emptied. 
 
+Update Users Stateless can be disabled for those user profiles that are too large to handle
+by ESP32, if the device restarts for a given profile , update the username and disable the
+Update Users Stateless option(This is to get balance and user's holdings).
 */
 #include <Arduino.h>
 #include "DeSoLib.h"
 #include "EEPROM.h"
 #include <WiFi.h>
-#include "cert.h"
+//#include "cert.h"
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include "customchars.h"
 #include <WebServer.h>
 #include "ap.h"
 WebServer server(80);
-// device :esp32-cam
-#define I2C_SDA 14 // SDA Connected to GPIO 14
-#define I2C_SCL 15 // SCL Connected to GPIO 15
+#define I2C_SDA 21
+#define I2C_SCL 22
 
 // Set the LCD address to 0x27 for a 16 chars and 4 line display
 LiquidCrystal_I2C lcd(0x27, 16, 4);
@@ -42,6 +44,7 @@ DeSoLib deso;
 DeSoLib::Profile profile1;
 int server_index = 0;
 #define CRASH_STATUS_ADD 500
+bool updateUsersStateless = false;
 void handleRoot()
 {
     server.send(200, "text/html", postForms);
@@ -133,6 +136,20 @@ void profilehandleForm()
                     }
                 }
             }
+            if (server.argName(i) == "usersStateless")
+            {
+                String usersStateless_str = server.arg(i);
+                if (usersStateless_str.length() != 0)
+                {
+                    if(usersStateless_str.equals("1")){
+                        updateUsersStateless = true;
+
+                    }else{
+                        updateUsersStateless = false;
+
+                    }
+                }
+            }
         }
 
         EEPROM.commit();
@@ -219,11 +236,11 @@ void setup()
         delay(1000);
         Serial.print(".");
     }
-    deso.addNodePath("https://bitclout.com", bitclout_caRootCert);
-    deso.addNodePath("https://nachoaverage.com", nachoaverage_caRootCert);
-    deso.addNodePath("https://members.giftclout.com", giftclout_caRootCert);
     //without root cert ,do not use this method for critical application
     //not sending any private keys,for dashboards it is fine,
+    deso.addNodePath("https://bitclout.com", "");
+    deso.addNodePath("https://nachoaverage.com", "");
+    deso.addNodePath("https://members.giftclout.com", "");
     deso.addNodePath("https://supernovas.app", "");
     deso.addNodePath("https://love4src.com", "");
     deso.addNodePath("https://stetnode.com", "");
@@ -313,12 +330,14 @@ void loop()
                 {
                     Serial.println(username);
                     skipNotWorkingNode();
+                    Serial.println("exchange...");
                     if (!deso.updateExchangeRates())
                     {
                         Serial.println("exchange error!");
                         nextServer();
                         continue;
                     }
+                    Serial.println("updateSingleProfile...");
 
                     int status = deso.updateSingleProfile(username, "", &profile1);
                     if (!status)
@@ -330,14 +349,18 @@ void loop()
                         nextServer();
                         continue;
                     }
-
-                    status = deso.updateUsersStateless(profile1.PublicKeyBase58Check, false, &profile1);
-                    if (!status)
+                    if (updateUsersStateless)
                     {
-                        Serial.println("user stateless error!");
-                        nextServer();
-                        continue;
+                        Serial.println("updateUsersStateless...");
+                        status = deso.updateUsersStateless(profile1.PublicKeyBase58Check, false, &profile1);
+                        if (!status)
+                        {
+                            Serial.println("user stateless error!");
+                            nextServer();
+                            continue;
+                        }
                     }
+                    Serial.println("updateLastNumPostsForPublicKey...");
 
                     status = deso.updateLastNumPostsForPublicKey(profile1.PublicKeyBase58Check, 5, &profile1);
                     if (!status)
@@ -368,8 +391,9 @@ void loop()
                 unsigned long timeout_wifi = millis();
                 while (WiFi.isConnected() != true && millis() - timeout_wifi < 10000)
                 {
-                    delay(500);
-                    Serial.print(".");
+                    server.handleClient();
+                    delay(10);
+                    //Serial.print(".");
                 }
                 if (WiFi.isConnected())
                 {
