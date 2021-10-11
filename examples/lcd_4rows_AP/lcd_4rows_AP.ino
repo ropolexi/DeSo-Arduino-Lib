@@ -137,7 +137,7 @@ void profilehandleForm()
                             if (WiFi.isConnected())
                             {
                                 msg += "Error:can not use this ";
-                                msg += String(username);
+                                msg += String(username_str);
                                 msg += " username,";
                             }
                             else
@@ -302,7 +302,12 @@ void updateDisplay()
     lcd.print("        ");
     lcd.setCursor(0 - 4, 2);
     lcd.print("C:$");
+    if(temp<1000){
     lcd.print(temp, 1);
+    }else{
+        lcd.print(temp/1000.0, 1);
+        lcd.print("k");
+    }
 
     double balanceCents = deso.USDCentsPerBitCloutExchangeRate * ((profile1.BalanceNanos+profile1.UnconfirmedBalanceNanos) / 1000000000.0);
     temp = balanceCents / 100.0;
@@ -310,7 +315,12 @@ void updateDisplay()
     lcd.print("        ");
     lcd.setCursor(8 - 4, 2);
     lcd.print("B:$");
+    if(temp<1000){
     lcd.print(temp, 1);
+    }else{
+        lcd.print(temp/1000.0, 1);
+        lcd.print("k");
+    }
 
     double assetsValue = (profile1.TotalHODLBalanceClout * deso.USDCentsPerBitCloutExchangeRate) / 100.0;
     lcd.setCursor(8, 1);
