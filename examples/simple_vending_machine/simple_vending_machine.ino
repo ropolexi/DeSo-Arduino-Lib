@@ -1,3 +1,11 @@
+/*
+This code only check the balance difference , if the device is restarted 
+it will reset and wait for another balance differnce.
+
+Here the balance is checked with the unconfirmed balance to make it fast,
+if you are doing large sums better remove unconfirmed balance to make sure
+it is confirmed.
+*/
 #include <Arduino.h>
 #include "DeSoLib.h"
 #include <WiFi.h>
