@@ -19,12 +19,17 @@ DeSo Dashbaord
         <tr><td></td><td><input type="submit" value="Submit"></td></tr>
         </table>
     </form>  
-
 <h2>Profile Settings</h2>
 <p>Type the username without @ </p>
     <form method="POST" action="/profile/">
         <table width="100%">
         <tr><td>Username</td><td><input type="text" name="username" id="username" value="" maxlength="20"></td></tr>
+        <tr><td>Update Users Stateless</td><td>
+        <select name="usersStateless" id="usersStateless">
+            <option value="1">Enable</option>
+            <option value="0">Disable</option>     
+        </select>
+        </td></tr>
         <tr><td></td><td><input type="submit" value="Submit"></td></tr>
         </table>
     </form>  
