@@ -24,8 +24,6 @@ This is to demostrate the use of deso library to display information about a use
 ![Circuit](img/esp32_circuit_lcd_bb.jpg)
 
 ## Prototype
-![Circuit](img/circuit2.jpg) 
-
 
 ![Circuit](img/circuit1.jpg)
 
