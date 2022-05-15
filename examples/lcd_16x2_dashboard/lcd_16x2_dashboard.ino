@@ -21,7 +21,7 @@ void setup()
   lcd.init();
   lcd.backlight();
   lcd.clear();
-  lcd.print("DeSo Dashbaord");
+  lcd.print("DeSo Dashboard");
   lcd.setCursor(0, 1);
   lcd.print("(Bitclout)");
   Serial.begin(9600);
